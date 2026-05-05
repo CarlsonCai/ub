@@ -1,0 +1,24 @@
+<div ng-controller="PackageExportDashboardController as vm" style="padding: 24px; max-width: 760px;">
+  <h3 style="margin-top: 0;">一鍵打包前台</h3>
+  <p>按下按鈕後會執行 <code>frontend-exporter</code>，產生前台部署包（ZIP）。</p>
+
+  <button type="button"
+          class="btn btn-success"
+          ng-click="vm.runExport()"
+          ng-disabled="vm.loading">
+    {{ vm.loading ? '打包中...' : '開始打包' }}
+  </button>
+
+  <div ng-if="vm.message" style="margin-top: 16px;">
+    <strong>{{ vm.message }}</strong>
+  </div>
+
+  <div ng-if="vm.downloadUrl" style="margin-top: 8px;">
+    <a class="btn btn-primary" ng-href="{{ vm.downloadUrl }}" target="_blank" rel="noopener">
+      下載最新打包檔
+    </a>
+  </div>
+
+  <pre ng-if="vm.logs"
+       style="margin-top: 16px; max-height: 360px; overflow: auto; background: #111; color: #ddd; padding: 12px;">{{ vm.logs }}</pre>
+</div>

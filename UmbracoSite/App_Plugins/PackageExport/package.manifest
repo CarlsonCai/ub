@@ -1,0 +1,13 @@
+{
+  "dashboards": [
+    {
+      "alias": "packageExportDashboard",
+      "view": "/App_Plugins/PackageExport/dashboard.html",
+      "sections": [ "content" ],
+      "weight": 50
+    }
+  ],
+  "javascript": [
+    "/App_Plugins/PackageExport/dashboard.controller.js"
+  ]
+}

@@ -1,0 +1,88 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+
+    var headerBrandText = Model.Value<string>("headerBrandText") ?? "ACME Growth";
+    var headerCtaText = Model.Value<string>("headerCtaText") ?? "免費試用";
+    var headerCtaUrl = Model.Value<string>("headerCtaUrl") ?? "#cta";
+    var pageTitle = Model.Value<string>("pageTitle") ?? Model.Name;
+    var subtitle = Model.Value<string>("subtitle") ?? "用可編輯內容快速上線行銷頁。";
+    var primaryButtonText = Model.Value<string>("primaryButtonText") ?? "立即預約 Demo";
+    var primaryButtonUrl = Model.Value<string>("primaryButtonUrl") ?? "#";
+}
+
+<header class="nav">
+    <div class="container nav-wrap">
+        <a href="/" class="brand">@headerBrandText</a>
+        <nav class="menu">
+            <a href="#features">功能</a>
+            <a href="#faq">FAQ</a>
+        </nav>
+        <a href="@headerCtaUrl" class="btn btn-outline">@headerCtaText</a>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div>
+                <p class="badge">PM 可在後台直接修改</p>
+                <h1>@pageTitle</h1>
+                <p class="lead">@subtitle</p>
+                <div class="actions">
+                    <a class="btn btn-primary" href="@primaryButtonUrl">@primaryButtonText</a>
+                    <a class="btn btn-ghost" href="#features">看功能</a>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>快速導入成果</h3>
+                <ul>
+                    <li><strong>+37%</strong> 轉換率提升</li>
+                    <li><strong>-52%</strong> 活動上線時間</li>
+                    <li><strong>4.8/5</strong> 團隊滿意度</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <h2>這頁示範的可編輯欄位</h2>
+            <div class="cards">
+                <article class="card">
+                    <h3>pageTitle</h3>
+                    <p>主標題，PM 可直接改。</p>
+                </article>
+                <article class="card">
+                    <h3>subtitle</h3>
+                    <p>主視覺文案，支援快速 A/B 改文案。</p>
+                </article>
+                <article class="card">
+                    <h3>primaryButtonText / Url</h3>
+                    <p>按鈕文字與連結可由後台維護。</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section section-alt">
+        <div class="container">
+            <h2>FAQ</h2>
+            <details>
+                <summary>改標題需要重 build 嗎？</summary>
+                <p>不需要。PM 在後台改完發佈即可生效。</p>
+            </details>
+            <details>
+                <summary>什麼時候才需要重部署？</summary>
+                <p>只有版型程式碼、樣式或新功能調整時才需要。</p>
+            </details>
+        </div>
+    </section>
+
+    <section id="cta" class="section cta">
+        <div class="container cta-box">
+            <h2>這個範例已接到 Umbraco 欄位</h2>
+            <p>下一步可擴成 Block List，讓 PM 自行新增區塊。</p>
+        </div>
+    </section>
+</main>

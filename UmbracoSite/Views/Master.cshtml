@@ -1,0 +1,14 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(Model.Value("seoTitle") ?? Model.Name)</title>
+    <meta name="description" content="@(Model.Value("seoDescription") ?? "Umbraco marketing page demo")" />
+    <link rel="stylesheet" href="/marketing-demo.css" />
+</head>
+<body>
+    @RenderBody()
+</body>
+</html>

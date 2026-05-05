@@ -1,0 +1,14 @@
+{
+  "name": "frontend-exporter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Export static marketing frontend from Umbraco content",
+  "type": "module",
+  "scripts": {
+    "export": "node export.js"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "dotenv": "^16.4.5"
+  }
+}
