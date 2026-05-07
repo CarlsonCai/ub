@@ -1,13 +1,22 @@
 <div ng-controller="PackageExportDashboardController as vm" style="padding: 24px; max-width: 760px;">
-  <h3 style="margin-top: 0;">一鍵打包前台</h3>
-  <p>按下按鈕後會執行 <code>frontend-exporter</code>，產生前台部署包（ZIP）。</p>
+  <h3 style="margin-top: 0;">匯出（相容頁）</h3>
+  <p>上稿工具已搬到左側選單的「上稿工具」。此頁保留給舊流程相容使用。</p>
 
-  <button type="button"
-          class="btn btn-success"
-          ng-click="vm.runExport()"
-          ng-disabled="vm.loading">
-    {{ vm.loading ? '打包中...' : '開始打包' }}
-  </button>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <button type="button"
+            class="btn btn-success"
+            ng-click="vm.runExport()"
+            ng-disabled="vm.loading">
+      {{ vm.loading ? '打包中...' : '匯出前台 ZIP' }}
+    </button>
+
+    <button type="button"
+            class="btn btn-default"
+            ng-click="vm.exportJson()"
+            ng-disabled="vm.loadingJson">
+      {{ vm.loadingJson ? '匯出中...' : '一鍵匯出 JSON' }}
+    </button>
+  </div>
 
   <div ng-if="vm.message" style="margin-top: 16px;">
     <strong>{{ vm.message }}</strong>
@@ -19,6 +28,15 @@
     </a>
   </div>
 
+  <div ng-if="vm.jsonDownloadUrl" style="margin-top: 8px;">
+    <a class="btn btn-primary" ng-href="{{ vm.jsonDownloadUrl }}" target="_blank" rel="noopener">
+      下載最新 JSON
+    </a>
+  </div>
+
   <pre ng-if="vm.logs"
        style="margin-top: 16px; max-height: 360px; overflow: auto; background: #111; color: #ddd; padding: 12px;">{{ vm.logs }}</pre>
+
+  <div style="margin-top: 14px;" class="alert alert-info">
+    提示：請從左側選單點「上稿工具」進行公告/文章上稿與匯出。\n  </div>
 </div>

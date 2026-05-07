@@ -1,0 +1,152 @@
+@model UmbracoSite.Models.SiteData
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = Model.SiteSettings.BrandName;
+
+    var hero = Model.Home.Hero;
+    var announcements = Model.Collections.Announcements.Where(x => x.IsPublished).Take(Model.Home.Announcements.Limit).ToList();
+    var articles = Model.Collections.Articles.Where(x => x.IsPublished).Take(Model.Home.Articles.Limit).ToList();
+    var products = Model.Collections.Products.Where(x => x.IsPublished).Take(Model.Home.Products.Limit).ToList();
+    var promotions = Model.Collections.Promotions.Where(x => x.IsPublished).Take(Model.Home.Promotions.Limit).ToList();
+}
+
+<main>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div>
+                <p class="pill">可後台上稿・測試同步・匯出覆蓋</p>
+                <h1>@hero.Title</h1>
+                <p class="lead">@hero.Subtitle</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="@hero.PrimaryCtaHref">@hero.PrimaryCtaLabel</a>
+                    <a class="btn btn-outline" href="/announcements">看最新公告</a>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>重點服務</h3>
+                <ul>
+                    <li><strong>公告/文章</strong>：PM 自助上稿</li>
+                    <li><strong>產品/活動</strong>：列表＋內頁</li>
+                    <li><strong>匯出</strong>：覆蓋 IIS 即生效</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <h2>產品與服務</h2>
+                <div class="muted"><a href="/products" style="color: inherit; text-decoration: none;">查看全部</a></div>
+            </div>
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!products.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布產品。</div>
+                }
+                else
+                {
+                    foreach (var p in products)
+                    {
+                        <article class="card">
+                            <h3><a href="/products/@p.Slug" style="color: inherit; text-decoration: none;">@p.Title</a></h3>
+                            <p class="muted">@p.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/products/@p.Slug">了解更多</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt">
+        <div class="container">
+            <div class="split">
+                <h2>活動優惠</h2>
+                <div class="muted"><a href="/promotions" style="color: inherit; text-decoration: none;">查看全部</a></div>
+            </div>
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!promotions.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布活動。</div>
+                }
+                else
+                {
+                    foreach (var p in promotions)
+                    {
+                        <article class="card">
+                            <h3><a href="/promotions/@p.Slug" style="color: inherit; text-decoration: none;">@p.Title</a></h3>
+                            <p class="muted">@p.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/promotions/@p.Slug">查看活動</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <h2>最新公告</h2>
+                <div class="muted"><a href="/announcements" style="color: inherit; text-decoration: none;">查看全部</a></div>
+            </div>
+            <div class="list" style="margin-top: 12px;">
+                @if (!announcements.Any())
+                {
+                    <div class="card">目前沒有已發布公告。</div>
+                }
+                else
+                {
+                    foreach (var a in announcements)
+                    {
+                        <article class="item">
+                            <div>
+                                <div class="badge @(a.IsPinned ? "warn" : "ok")">@(a.IsPinned ? "置頂" : "公告")</div>
+                                <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            </div>
+                            <div>
+                                <h3><a href="/announcements/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a></h3>
+                                <p>@a.Summary</p>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container cta-box">
+            <div class="split">
+                <h2>理財文章</h2>
+                <div class="muted"><a href="/articles" style="color: inherit; text-decoration: none;">查看全部</a></div>
+            </div>
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!articles.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布文章。</div>
+                }
+                else
+                {
+                    foreach (var a in articles)
+                    {
+                        <article class="card">
+                            <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            <h3 style="margin-top: 8px;"><a href="/articles/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a></h3>
+                            <p class="muted">@a.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/articles/@a.Slug">閱讀</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</main>
+

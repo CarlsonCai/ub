@@ -1,0 +1,40 @@
+@model List<UmbracoSite.Models.Announcement>
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = "公告";
+}
+
+<main>
+    <section class="section section-alt">
+        <div class="container">
+            <div class="split">
+                <h2>公告</h2>
+                <div class="muted">最新更新：@(Model.Any() ? Model.Max(x => x.Date).ToString("yyyy/MM/dd") : "—")</div>
+            </div>
+
+            <div class="list" style="margin-top: 12px;">
+                @if (!Model.Any())
+                {
+                    <div class="card">目前沒有已發布公告。</div>
+                }
+                else
+                {
+                    foreach (var a in Model)
+                    {
+                        <article class="item">
+                            <div>
+                                <div class="badge @(a.IsPinned ? "warn" : "ok")">@((a.IsPinned ? "置頂" : "公告"))</div>
+                                <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            </div>
+                            <div>
+                                <h3><a href="/announcements/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a></h3>
+                                <p>@a.Summary</p>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</main>
+

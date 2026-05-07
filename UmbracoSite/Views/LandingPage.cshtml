@@ -1,22 +1,48 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inject UmbracoSite.Services.BankSiteRepository BankSiteRepo
 @{
     Layout = "Master.cshtml";
 
-    var headerBrandText = Model.Value<string>("headerBrandText") ?? "ACME Growth";
-    var headerCtaText = Model.Value<string>("headerCtaText") ?? "免費試用";
-    var headerCtaUrl = Model.Value<string>("headerCtaUrl") ?? "#cta";
-    var pageTitle = Model.Value<string>("pageTitle") ?? Model.Name;
-    var subtitle = Model.Value<string>("subtitle") ?? "用可編輯內容快速上線行銷頁。";
-    var primaryButtonText = Model.Value<string>("primaryButtonText") ?? "立即預約 Demo";
+    var headerBrandText = Model.Value<string>("headerBrandText") ?? "UB 銀行";
+    var headerCtaText = Model.Value<string>("headerCtaText") ?? "網銀登入";
+    var headerCtaUrl = Model.Value<string>("headerCtaUrl") ?? "#";
+    var pageTitle = Model.Value<string>("pageTitle") ?? "讓金融服務更安心、更便利";
+    var subtitle = Model.Value<string>("subtitle") ?? "信用卡、存匯、貸款、數位帳戶一次到位。內容可由後台上稿與發布。";
+    var primaryButtonText = Model.Value<string>("primaryButtonText") ?? "立即開戶";
     var primaryButtonUrl = Model.Value<string>("primaryButtonUrl") ?? "#";
+
+    var siteData = BankSiteRepo.Get();
+    var latestAnnouncements = siteData.Announcements
+        .Where(x => x.IsPublished)
+        .Take(5)
+        .ToList();
+    var latestArticles = siteData.Articles
+        .Where(x => x.IsPublished)
+        .Take(6)
+        .ToList();
 }
+
+<div class="topbar">
+    <div class="container">
+        <div>客服專線：02-0000-0000（週一至週五 09:00-18:00）</div>
+        <div class="muted">
+            <a href="#announcements">最新公告</a>
+            <span style="margin: 0 10px; opacity: .35;">|</span>
+            <a href="#articles">理財文章</a>
+        </div>
+    </div>
+</div>
 
 <header class="nav">
     <div class="container nav-wrap">
-        <a href="/" class="brand">@headerBrandText</a>
+        <a href="/" class="brand">
+            <span class="logo" aria-hidden="true"></span>
+            <span>@headerBrandText</span>
+        </a>
         <nav class="menu">
-            <a href="#features">功能</a>
-            <a href="#faq">FAQ</a>
+            <a href="#products">產品與服務</a>
+            <a href="/announcements">公告</a>
+            <a href="/articles">文章</a>
         </nav>
         <a href="@headerCtaUrl" class="btn btn-outline">@headerCtaText</a>
     </div>
@@ -26,63 +52,122 @@
     <section class="hero">
         <div class="container hero-grid">
             <div>
-                <p class="badge">PM 可在後台直接修改</p>
+                <p class="pill">可後台上稿・審核・發布</p>
                 <h1>@pageTitle</h1>
                 <p class="lead">@subtitle</p>
-                <div class="actions">
+                <div class="hero-actions">
                     <a class="btn btn-primary" href="@primaryButtonUrl">@primaryButtonText</a>
-                    <a class="btn btn-ghost" href="#features">看功能</a>
+                    <a class="btn btn-outline" href="#announcements">看最新公告</a>
                 </div>
             </div>
             <div class="panel">
-                <h3>快速導入成果</h3>
+                <h3>重點服務</h3>
                 <ul>
-                    <li><strong>+37%</strong> 轉換率提升</li>
-                    <li><strong>-52%</strong> 活動上線時間</li>
-                    <li><strong>4.8/5</strong> 團隊滿意度</li>
+                    <li><strong>數位帳戶</strong>：24 小時線上開戶</li>
+                    <li><strong>信用卡</strong>：優惠活動與回饋查詢</li>
+                    <li><strong>貸款</strong>：線上試算與預約</li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <section id="features" class="section">
+    <section id="products" class="section">
         <div class="container">
-            <h2>這頁示範的可編輯欄位</h2>
-            <div class="cards">
+            <div class="split">
+                <h2>產品與服務</h2>
+                <div class="muted">示範官網資訊架構（可依後台內容擴充）</div>
+            </div>
+            <div class="grid-3">
                 <article class="card">
-                    <h3>pageTitle</h3>
-                    <p>主標題，PM 可直接改。</p>
+                    <h3>存款 / 數位帳戶</h3>
+                    <div class="kpi">
+                        <strong>0 元</strong>
+                        <span>跨行轉帳手續費（示意）</span>
+                    </div>
                 </article>
                 <article class="card">
-                    <h3>subtitle</h3>
-                    <p>主視覺文案，支援快速 A/B 改文案。</p>
+                    <h3>信用卡</h3>
+                    <div class="kpi">
+                        <strong>最高 5%</strong>
+                        <span>指定通路回饋（示意）</span>
+                    </div>
                 </article>
                 <article class="card">
-                    <h3>primaryButtonText / Url</h3>
-                    <p>按鈕文字與連結可由後台維護。</p>
+                    <h3>貸款</h3>
+                    <div class="kpi">
+                        <strong>線上試算</strong>
+                        <span>快速估算月付金（示意）</span>
+                    </div>
                 </article>
             </div>
         </div>
     </section>
 
-    <section id="faq" class="section section-alt">
+    <section id="announcements" class="section section-alt">
         <div class="container">
-            <h2>FAQ</h2>
-            <details>
-                <summary>改標題需要重 build 嗎？</summary>
-                <p>不需要。PM 在後台改完發佈即可生效。</p>
-            </details>
-            <details>
-                <summary>什麼時候才需要重部署？</summary>
-                <p>只有版型程式碼、樣式或新功能調整時才需要。</p>
-            </details>
+            <div class="split">
+                <h2>最新公告</h2>
+                <div class="muted">
+                    <a href="/announcements" style="color: inherit; text-decoration: none;">查看全部</a>
+                </div>
+            </div>
+            <div class="list">
+                @if (!latestAnnouncements.Any())
+                {
+                    <div class="card">目前沒有已發布公告。</div>
+                }
+                else
+                {
+                    foreach (var a in latestAnnouncements)
+                    {
+                        <article class="item">
+                            <div>
+                                <div class="badge @(a.IsPinned ? "warn" : "ok")">@(a.IsPinned ? "置頂" : "公告")</div>
+                                <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            </div>
+                            <div>
+                                <h3>
+                                    <a href="/announcements/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a>
+                                </h3>
+                                <p>@a.Summary</p>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
         </div>
     </section>
 
-    <section id="cta" class="section cta">
+    <section id="articles" class="section">
         <div class="container cta-box">
-            <h2>這個範例已接到 Umbraco 欄位</h2>
-            <p>下一步可擴成 Block List，讓 PM 自行新增區塊。</p>
+            <div class="split">
+                <h2>理財文章</h2>
+                <div class="muted">
+                    <a href="/articles" style="color: inherit; text-decoration: none;">查看全部</a>
+                </div>
+            </div>
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!latestArticles.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布文章。</div>
+                }
+                else
+                {
+                    foreach (var a in latestArticles)
+                    {
+                        <article class="card">
+                            <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            <h3 style="margin-top: 8px;">
+                                <a href="/articles/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a>
+                            </h3>
+                            <p class="muted">@a.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/articles/@a.Slug">閱讀</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
         </div>
     </section>
 </main>

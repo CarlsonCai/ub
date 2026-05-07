@@ -21,6 +21,8 @@ dotnet run --urls "http://localhost:5191"
 
 - 後台：`http://localhost:5191/umbraco`
 - 前台頁：`http://localhost:5191/home`
+- 公告列表：`http://localhost:5191/announcements`
+- 文章列表：`http://localhost:5191/articles`
 
 ---
 
@@ -34,6 +36,18 @@ dotnet run --urls "http://localhost:5191"
 
 ---
 
+## 2.1 後台上稿（公告 / 文章）
+
+1. 進入後台 `Content`
+2. 開啟 Dashboard「上稿工具 / 匯出」
+3. 在「公告 / 文章上稿」區塊新增/編輯內容
+4. 點「儲存上稿內容」
+5. 前台：
+   - 公告：`http://localhost:5191/announcements`
+   - 文章：`http://localhost:5191/articles`
+
+---
+
 ## 3. 前台打包（CLI）
 
 ```powershell
@@ -44,17 +58,18 @@ npm run export
 輸出結果：
 
 - `C:\Users\sherl\Desktop\ub\frontend-exporter\dist\home\index.html`
-- `C:\Users\sherl\Desktop\ub\frontend-exporter\dist\assets\marketing-demo.css`
-- `C:\Users\sherl\Desktop\ub\frontend-exporter\marketing-frontend.zip`
+- `C:\Users\sherl\Desktop\ub\frontend-exporter\dist\assets\bank-site.css`
+- `C:\Users\sherl\Desktop\ub\frontend-exporter\dist\site-data.json`
+- `C:\Users\sherl\Desktop\ub\frontend-exporter\bank-website.zip`
 
-> ZIP 解壓後會有一層 `marketing-frontend` 資料夾，內含 `home` 與 `assets`。
+> ZIP 解壓後會有一層 `bank-website` 資料夾，內含 `home`、`assets` 與 `site-data.json`。
 
 ---
 
 ## 4. 後台一鍵打包
 
 1. 進入後台 `Content` 區段
-2. 開啟「一鍵打包前台」Dashboard
+2. 開啟「上稿工具 / 匯出」Dashboard
 3. 點 `開始打包`
 4. 打包成功後會自動觸發下載
 
@@ -113,7 +128,7 @@ npm run export
 
 並確認 HTML 使用相對路徑：
 
-- `../assets/marketing-demo.css`
+- `../assets/bank-site.css`
 
 ---
 
@@ -150,5 +165,5 @@ git push -u origin main
 - `UmbracoSite/`：Umbraco 專案（前後台）
 - `frontend-exporter/`：前台靜態匯出工具
 - `frontend-exporter/dist/`：匯出結果
-- `frontend-exporter/marketing-frontend.zip`：部署包
+- `frontend-exporter/bank-website.zip`：部署包
 

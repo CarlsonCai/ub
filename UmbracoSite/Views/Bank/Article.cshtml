@@ -1,0 +1,24 @@
+@model UmbracoSite.Models.Article
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = Model.Title;
+}
+
+<main>
+    <section class="section">
+        <div class="container">
+            <div class="card">
+                <div class="muted">@Model.Date.ToString("yyyy/MM/dd")</div>
+                <h2 style="margin-top: 8px;">@Model.Title</h2>
+                <p class="muted">@Model.Summary</p>
+                <div style="margin-top: 14px;">
+                    @Html.Raw(Model.BodyHtml ?? "")
+                </div>
+                <div style="margin-top: 18px;">
+                    <a class="btn btn-outline" href="/articles">回文章列表</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+

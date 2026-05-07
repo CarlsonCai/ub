@@ -1,5 +1,14 @@
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<UmbracoSite.Services.BankSiteRepository>();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.Converters.Add(new UmbracoSite.Json.LenientDateOnlyJsonConverter());
+});
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()

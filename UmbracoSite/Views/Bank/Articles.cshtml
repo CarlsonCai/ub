@@ -1,0 +1,38 @@
+@model List<UmbracoSite.Models.Article>
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = "文章";
+}
+
+<main>
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <h2>理財文章</h2>
+                <div class="muted">共 @Model.Count 篇</div>
+            </div>
+
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!Model.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布文章。</div>
+                }
+                else
+                {
+                    foreach (var a in Model)
+                    {
+                        <article class="card">
+                            <div class="muted">@a.Date.ToString("yyyy/MM/dd")</div>
+                            <h3 style="margin-top: 8px;"><a href="/articles/@a.Slug" style="color: inherit; text-decoration: none;">@a.Title</a></h3>
+                            <p class="muted">@a.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/articles/@a.Slug">閱讀</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</main>
+

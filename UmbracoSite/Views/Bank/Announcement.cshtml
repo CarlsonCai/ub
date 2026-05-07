@@ -1,0 +1,24 @@
+@model UmbracoSite.Models.Announcement
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = Model.Title;
+}
+
+<main>
+    <section class="section">
+        <div class="container">
+            <div class="card">
+                <div class="badge @(Model.IsPinned ? "warn" : "ok")">@((Model.IsPinned ? "置頂" : "公告"))</div>
+                <h2 style="margin-top: 10px;">@Model.Title</h2>
+                <div class="muted">@Model.Date.ToString("yyyy/MM/dd")</div>
+                <div style="margin-top: 14px;">
+                    @Html.Raw(Model.BodyHtml ?? "")
+                </div>
+                <div style="margin-top: 18px;">
+                    <a class="btn btn-outline" href="/announcements">回公告列表</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+

@@ -1,0 +1,431 @@
+<div ng-controller="BankEditorController as vm" style="padding: 24px; max-width: 1080px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; gap: 12px; flex-wrap: wrap;">
+    <div>
+      <h3 style="margin: 0;">上稿工具</h3>
+      <div style="margin-top: 4px; color: #666;">
+        公告 / 文章上稿、預覽、發布與一鍵匯出（JSON / ZIP）。
+      </div>
+    </div>
+    <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+      <button type="button" class="btn btn-default" ng-click="vm.goList()" ng-disabled="vm.busy" ng-if="vm.page !== 'list'">
+        ← 回列表
+      </button>
+      <button type="button" class="btn btn-default" ng-click="vm.goExport()" ng-disabled="vm.busy" ng-if="vm.page !== 'export'">
+        匯出
+      </button>
+      <button type="button" class="btn btn-info" ng-click="vm.loadAll()" ng-disabled="vm.busy">
+        {{ vm.busy ? '處理中...' : '重新載入' }}
+      </button>
+      <button type="button" class="btn btn-primary" ng-click="vm.save()" ng-disabled="vm.busy">
+        儲存
+      </button>
+    </div>
+  </div>
+
+  <div ng-if="vm.banner" style="margin-top: 12px;">
+    <div class="alert" ng-class="vm.banner.type === 'error' ? 'alert-error' : 'alert-success'">
+      {{ vm.banner.text }}
+    </div>
+  </div>
+
+  <div style="margin-top: 16px;" ng-if="vm.page !== 'export'">
+    <ul class="nav nav-pills">
+      <li ng-class="{active: vm.tab === 'announcements'}"><a href="" ng-click="vm.tab='announcements'; vm.page='list'">公告</a></li>
+      <li ng-class="{active: vm.tab === 'articles'}"><a href="" ng-click="vm.tab='articles'; vm.page='list'">文章</a></li>
+      <li ng-class="{active: vm.tab === 'products'}"><a href="" ng-click="vm.tab='products'; vm.page='list'">產品</a></li>
+      <li ng-class="{active: vm.tab === 'promotions'}"><a href="" ng-click="vm.tab='promotions'; vm.page='list'">活動</a></li>
+    </ul>
+  </div>
+
+  <div style="margin-top: 14px;" ng-if="vm.page !== 'export'">
+    <div ng-if="vm.page === 'list' && vm.tab === 'announcements'">
+      <div style="display:flex; justify-content:space-between; gap: 12px; align-items:center; flex-wrap: wrap;">
+        <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
+          <h4 style="margin: 0;">公告</h4>
+          <span style="color:#666;">共 {{ vm.filteredAnnouncements().length }} 則</span>
+        </div>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" class="umb-property-editor" placeholder="搜尋標題/摘要/slug"
+                 ng-model="vm.search.announcements" style="min-width: 280px;">
+          <button type="button" class="btn btn-small" ng-click="vm.addAnnouncement()">新增公告</button>
+        </div>
+      </div>
+
+      <div class="umb-box" style="margin-top: 12px;">
+        <div class="umb-box-content">
+          <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
+            <div class="muted">已選取 {{ vm.selectedCount('announcements') }} 筆</div>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('announcements','publish')" ng-disabled="!vm.selectedCount('announcements')">批次發布</button>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('announcements','unpublish')" ng-disabled="!vm.selectedCount('announcements')">批次下架</button>
+            <button type="button" class="btn btn-danger btn-small" ng-click="vm.applyBulk('announcements','delete')" ng-disabled="!vm.selectedCount('announcements')">批次刪除</button>
+          </div>
+
+          <div ng-if="!vm.filteredAnnouncements().length" class="muted">沒有符合條件的公告。</div>
+
+          <table class="table table-hover" style="width:100%;" ng-if="vm.filteredAnnouncements().length">
+            <thead>
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox"
+                         ng-click="vm.toggleSelectAll('announcements', $event.target.checked)">
+                </th>
+                <th style="cursor:pointer;" ng-click="vm.setSort('announcements','title')">標題</th>
+                <th style="cursor:pointer; width: 140px;" ng-click="vm.setSort('announcements','date')">日期</th>
+                <th style="width: 110px;">狀態</th>
+                <th style="width: 90px;">置頂</th>
+                <th style="width: 240px;">Slug</th>
+                <th style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="a in vm.filteredAnnouncements() track by $index">
+                <td>
+                  <input type="checkbox"
+                         ng-checked="vm.isSelected('announcements', a)"
+                         ng-click="vm.toggleSelected('announcements', a, $event.target.checked); $event.stopPropagation();">
+                </td>
+                <td ng-click="vm.select('announcement', a)" style="cursor:pointer;">
+                  <strong>{{ a.title || '(未命名公告)' }}</strong>
+                  <div class="muted" style="font-size: 12px; margin-top: 2px;">{{ a.summary }}</div>
+                </td>
+                <td ng-click="vm.select('announcement', a)" style="cursor:pointer;">{{ a.date || '—' }}</td>
+                <td>
+                  <span class="badge" ng-class="a.isPublished ? 'badge-success' : 'badge-warning'">
+                    {{ a.isPublished ? '已發布' : '草稿' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" ng-class="a.isPinned ? 'badge-success' : ''">{{ a.isPinned ? '是' : '否' }}</span>
+                </td>
+                <td class="muted" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                  /announcements/{{ a.slug || '...' }}
+                </td>
+                <td>
+                  <button type="button" class="btn btn-small" ng-click="vm.select('announcement', a); $event.stopPropagation();">編輯</button>
+                  <button type="button" class="btn btn-danger btn-small" ng-click="vm.selectedType='announcement'; vm.selectedItem=a; vm.removeSelected(); $event.stopPropagation();">刪除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="vm.page === 'list' && vm.tab === 'articles'">
+      <div style="display:flex; justify-content:space-between; gap: 12px; align-items:center; flex-wrap: wrap;">
+        <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
+          <h4 style="margin: 0;">文章</h4>
+          <span style="color:#666;">共 {{ vm.filteredArticles().length }} 篇</span>
+        </div>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" class="umb-property-editor" placeholder="搜尋標題/摘要/slug"
+                 ng-model="vm.search.articles" style="min-width: 280px;">
+          <button type="button" class="btn btn-small" ng-click="vm.addArticle()">新增文章</button>
+        </div>
+      </div>
+
+      <div class="umb-box" style="margin-top: 12px;">
+        <div class="umb-box-content">
+          <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
+            <div class="muted">已選取 {{ vm.selectedCount('articles') }} 筆</div>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('articles','publish')" ng-disabled="!vm.selectedCount('articles')">批次發布</button>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('articles','unpublish')" ng-disabled="!vm.selectedCount('articles')">批次下架</button>
+            <button type="button" class="btn btn-danger btn-small" ng-click="vm.applyBulk('articles','delete')" ng-disabled="!vm.selectedCount('articles')">批次刪除</button>
+          </div>
+
+          <div ng-if="!vm.filteredArticles().length" class="muted">沒有符合條件的文章。</div>
+
+          <table class="table table-hover" style="width:100%;" ng-if="vm.filteredArticles().length">
+            <thead>
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox"
+                         ng-click="vm.toggleSelectAll('articles', $event.target.checked)">
+                </th>
+                <th style="cursor:pointer;" ng-click="vm.setSort('articles','title')">標題</th>
+                <th style="cursor:pointer; width: 140px;" ng-click="vm.setSort('articles','date')">日期</th>
+                <th style="width: 110px;">狀態</th>
+                <th style="width: 160px;">分類</th>
+                <th style="width: 240px;">Slug</th>
+                <th style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="a in vm.filteredArticles() track by $index">
+                <td>
+                  <input type="checkbox"
+                         ng-checked="vm.isSelected('articles', a)"
+                         ng-click="vm.toggleSelected('articles', a, $event.target.checked); $event.stopPropagation();">
+                </td>
+                <td ng-click="vm.select('article', a)" style="cursor:pointer;">
+                  <strong>{{ a.title || '(未命名文章)' }}</strong>
+                  <div class="muted" style="font-size: 12px; margin-top: 2px;">{{ a.summary }}</div>
+                </td>
+                <td ng-click="vm.select('article', a)" style="cursor:pointer;">{{ a.date || '—' }}</td>
+                <td>
+                  <span class="badge" ng-class="a.isPublished ? 'badge-success' : 'badge-warning'">
+                    {{ a.isPublished ? '已發布' : '草稿' }}
+                  </span>
+                </td>
+                <td class="muted">{{ a.category || '—' }}</td>
+                <td class="muted" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                  /articles/{{ a.slug || '...' }}
+                </td>
+                <td>
+                  <button type="button" class="btn btn-small" ng-click="vm.select('article', a); $event.stopPropagation();">編輯</button>
+                  <button type="button" class="btn btn-danger btn-small" ng-click="vm.selectedType='article'; vm.selectedItem=a; vm.removeSelected(); $event.stopPropagation();">刪除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="vm.page === 'list' && vm.tab === 'products'">
+      <div style="display:flex; justify-content:space-between; gap: 12px; align-items:center; flex-wrap: wrap;">
+        <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
+          <h4 style="margin: 0;">產品</h4>
+          <span style="color:#666;">共 {{ vm.filteredProductsRaw().length }} 項</span>
+        </div>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" class="umb-property-editor" placeholder="搜尋標題/摘要/slug"
+                 ng-model="vm.search.products" style="min-width: 280px;">
+          <button type="button" class="btn btn-small" ng-click="vm.addProduct()">新增產品</button>
+        </div>
+      </div>
+
+      <div class="umb-box" style="margin-top: 12px;">
+        <div class="umb-box-content">
+          <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
+            <div class="muted">已選取 {{ vm.selectedCount('products') }} 筆</div>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('products','publish')" ng-disabled="!vm.selectedCount('products')">批次發布</button>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('products','unpublish')" ng-disabled="!vm.selectedCount('products')">批次下架</button>
+            <button type="button" class="btn btn-danger btn-small" ng-click="vm.applyBulk('products','delete')" ng-disabled="!vm.selectedCount('products')">批次刪除</button>
+          </div>
+
+          <div ng-if="!vm.filteredProductsRaw().length" class="muted">沒有符合條件的產品。</div>
+
+          <table class="table table-hover" style="width:100%;" ng-if="vm.filteredProductsRaw().length">
+            <thead>
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox" ng-click="vm.toggleSelectAll('products', $event.target.checked)">
+                </th>
+                <th style="cursor:pointer;" ng-click="vm.setSort('products','title')">標題</th>
+                <th style="cursor:pointer; width: 120px;" ng-click="vm.setSort('products','sort')">排序</th>
+                <th style="width: 110px;">狀態</th>
+                <th style="width: 240px;">Slug</th>
+                <th style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="p in vm.filteredProductsRaw() track by $index">
+                <td>
+                  <input type="checkbox"
+                         ng-checked="vm.isSelected('products', p)"
+                         ng-click="vm.toggleSelected('products', p, $event.target.checked); $event.stopPropagation();">
+                </td>
+                <td ng-click="vm.select('product', p)" style="cursor:pointer;">
+                  <strong>{{ p.title || '(未命名產品)' }}</strong>
+                  <div class="muted" style="font-size: 12px; margin-top: 2px;">{{ p.summary }}</div>
+                </td>
+                <td ng-click="vm.select('product', p)" style="cursor:pointer;">{{ p.sort || 0 }}</td>
+                <td>
+                  <span class="badge" ng-class="p.isPublished ? 'badge-success' : 'badge-warning'">
+                    {{ p.isPublished ? '已發布' : '草稿' }}
+                  </span>
+                </td>
+                <td class="muted" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                  /products/{{ p.slug || '...' }}
+                </td>
+                <td>
+                  <button type="button" class="btn btn-small" ng-click="vm.select('product', p); $event.stopPropagation();">編輯</button>
+                  <button type="button" class="btn btn-danger btn-small" ng-click="vm.selectedType='product'; vm.selectedItem=p; vm.removeSelected(); $event.stopPropagation();">刪除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="vm.page === 'list' && vm.tab === 'promotions'">
+      <div style="display:flex; justify-content:space-between; gap: 12px; align-items:center; flex-wrap: wrap;">
+        <div style="display:flex; gap: 10px; align-items:center; flex-wrap: wrap;">
+          <h4 style="margin: 0;">活動</h4>
+          <span style="color:#666;">共 {{ vm.filteredPromotionsRaw().length }} 項</span>
+        </div>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" class="umb-property-editor" placeholder="搜尋標題/摘要/slug"
+                 ng-model="vm.search.promotions" style="min-width: 280px;">
+          <button type="button" class="btn btn-small" ng-click="vm.addPromotion()">新增活動</button>
+        </div>
+      </div>
+
+      <div class="umb-box" style="margin-top: 12px;">
+        <div class="umb-box-content">
+          <div style="display:flex; gap: 10px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
+            <div class="muted">已選取 {{ vm.selectedCount('promotions') }} 筆</div>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('promotions','publish')" ng-disabled="!vm.selectedCount('promotions')">批次發布</button>
+            <button type="button" class="btn btn-small" ng-click="vm.applyBulk('promotions','unpublish')" ng-disabled="!vm.selectedCount('promotions')">批次下架</button>
+            <button type="button" class="btn btn-danger btn-small" ng-click="vm.applyBulk('promotions','delete')" ng-disabled="!vm.selectedCount('promotions')">批次刪除</button>
+          </div>
+
+          <div ng-if="!vm.filteredPromotionsRaw().length" class="muted">沒有符合條件的活動。</div>
+
+          <table class="table table-hover" style="width:100%;" ng-if="vm.filteredPromotionsRaw().length">
+            <thead>
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox" ng-click="vm.toggleSelectAll('promotions', $event.target.checked)">
+                </th>
+                <th style="cursor:pointer;" ng-click="vm.setSort('promotions','title')">標題</th>
+                <th style="width: 110px;">狀態</th>
+                <th style="width: 90px;">置頂</th>
+                <th style="width: 240px;">Slug</th>
+                <th style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="p in vm.filteredPromotionsRaw() track by $index">
+                <td>
+                  <input type="checkbox"
+                         ng-checked="vm.isSelected('promotions', p)"
+                         ng-click="vm.toggleSelected('promotions', p, $event.target.checked); $event.stopPropagation();">
+                </td>
+                <td ng-click="vm.select('promotion', p)" style="cursor:pointer;">
+                  <strong>{{ p.title || '(未命名活動)' }}</strong>
+                  <div class="muted" style="font-size: 12px; margin-top: 2px;">{{ p.summary }}</div>
+                </td>
+                <td>
+                  <span class="badge" ng-class="p.isPublished ? 'badge-success' : 'badge-warning'">
+                    {{ p.isPublished ? '已發布' : '草稿' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" ng-class="p.isPinned ? 'badge-success' : ''">{{ p.isPinned ? '是' : '否' }}</span>
+                </td>
+                <td class="muted" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                  /promotions/{{ p.slug || '...' }}
+                </td>
+                <td>
+                  <button type="button" class="btn btn-small" ng-click="vm.select('promotion', p); $event.stopPropagation();">編輯</button>
+                  <button type="button" class="btn btn-danger btn-small" ng-click="vm.selectedType='promotion'; vm.selectedItem=p; vm.removeSelected(); $event.stopPropagation();">刪除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top: 14px;" ng-if="vm.page === 'edit' && vm.selectedItem">
+    <div class="umb-box">
+      <div class="umb-box-header">
+        <h5 style="margin:0;">
+          {{ vm.selectedType === 'announcement' ? '編輯公告' : (vm.selectedType === 'article' ? '編輯文章' : (vm.selectedType === 'product' ? '編輯產品' : '編輯活動')) }}
+        </h5>
+        <div style="display:flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-danger btn-small" ng-click="vm.removeSelected()">刪除</button>
+        </div>
+      </div>
+      <div class="umb-box-content">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;" class="bank-editor-grid">
+          <div>
+            <div style="display:grid; grid-template-columns: 1fr 160px; gap: 12px;">
+              <label>標題
+                <input class="umb-property-editor" type="text" ng-model="vm.selectedItem.title" style="width:100%;">
+              </label>
+              <label ng-if="vm.selectedType === 'announcement' || vm.selectedType === 'article'">日期
+                <input class="umb-property-editor" type="date" ng-model="vm.selectedItem.date" style="width:100%;">
+              </label>
+              <label ng-if="vm.selectedType === 'product'">排序
+                <input class="umb-property-editor" type="number" ng-model="vm.selectedItem.sort" style="width:100%;">
+              </label>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+              <label>Slug
+                <input class="umb-property-editor" type="text" ng-model="vm.selectedItem.slug" placeholder="可留空，儲存時自動產生" style="width:100%;">
+              </label>
+              <label ng-if="vm.selectedType === 'announcement'">層級（important/service）
+                <input class="umb-property-editor" type="text" ng-model="vm.selectedItem.level" style="width:100%;">
+              </label>
+              <label ng-if="vm.selectedType === 'article'">分類
+                <input class="umb-property-editor" type="text" ng-model="vm.selectedItem.category" style="width:100%;">
+              </label>
+            </div>
+
+            <div style="display:flex; gap: 14px; flex-wrap: wrap; margin-top: 10px;">
+              <label style="margin:0;" ng-if="vm.selectedType === 'announcement'"><input type="checkbox" ng-model="vm.selectedItem.isPinned"> 置頂</label>
+              <label style="margin:0;" ng-if="vm.selectedType === 'promotion'"><input type="checkbox" ng-model="vm.selectedItem.isPinned"> 置頂</label>
+              <label style="margin:0;"><input type="checkbox" ng-model="vm.selectedItem.isPublished"> 已發布</label>
+            </div>
+
+            <label style="margin-top: 10px;">摘要
+              <textarea class="umb-property-editor" ng-model="vm.selectedItem.summary" style="width:100%; min-height: 90px;"></textarea>
+            </label>
+            <label style="margin-top: 10px;">內文（HTML）
+              <textarea class="umb-property-editor" ng-model="vm.selectedItem.bodyHtml" style="width:100%; min-height: 220px;"></textarea>
+            </label>
+          </div>
+
+          <div>
+            <strong>預覽</strong>
+            <div style="margin-top: 8px; padding: 10px; border: 1px solid #eee; border-radius: 8px;">
+              <div style="color:#666; font-size: 12px;">
+                {{ vm.selectedItem.date }} ・
+                {{ vm.selectedType === 'announcement' ? ('/announcements/' + (vm.selectedItem.slug || '...')) : ('/articles/' + (vm.selectedItem.slug || '...')) }}
+              </div>
+              <h4 style="margin: 8px 0;">{{ vm.selectedItem.title }}</h4>
+              <div style="color:#666;">{{ vm.selectedItem.summary }}</div>
+              <div style="margin-top: 10px;" ng-bind-html="vm.trustHtml(vm.selectedItem.bodyHtml)"></div>
+            </div>
+            <div class="muted" style="margin-top: 10px;">
+              提示：按上方「儲存」後，slug 會自動正規化與避免重複。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 14px;" ng-if="vm.page === 'export'">
+    <div class="umb-box">
+      <div class="umb-box-header">
+        <h5 style="margin: 0;">匯出</h5>
+      </div>
+      <div class="umb-box-content">
+        <div class="umb-alert umb-alert--info" style="margin-bottom: 10px;">
+          建議流程：先「儲存」→ 再匯出。匯出 ZIP 會依 `site-data.json` 的 slug 產生公告/文章列表與所有內頁。
+        </div>
+
+        <div class="umb-box" style="margin: 10px 0;">
+          <div class="umb-box-content">
+            <div style="display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;">
+              <div><strong>公告</strong><div class="muted">總數：{{ vm.stats().announcementsTotal }}</div></div>
+              <div><strong>公告</strong><div class="muted">已發布：{{ vm.stats().announcementsPublished }}</div></div>
+              <div><strong>文章</strong><div class="muted">總數：{{ vm.stats().articlesTotal }}</div></div>
+              <div><strong>文章</strong><div class="muted">已發布：{{ vm.stats().articlesPublished }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-default" ng-click="vm.exportJson()" ng-disabled="vm.busy">一鍵匯出 JS</button>
+          <button type="button" class="btn btn-success" ng-click="vm.exportZip()" ng-disabled="vm.busy">一鍵匯出 ZIP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @media (max-width: 980px) {
+    .bank-editor-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+

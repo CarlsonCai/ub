@@ -1,3 +1,8 @@
+# Local env files
+.env
+
+# Umbraco runtime data
+UmbracoSite/App_Data/
 # Node
 node_modules/
 npm-debug.log*

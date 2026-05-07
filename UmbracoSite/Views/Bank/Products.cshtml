@@ -1,0 +1,37 @@
+@model List<UmbracoSite.Models.Product>
+@{
+    Layout = "~/Views/Shared/_BankLayout.cshtml";
+    ViewData["Title"] = "產品";
+}
+
+<main>
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <h2>產品與服務</h2>
+                <div class="muted">共 @Model.Count 項</div>
+            </div>
+
+            <div class="grid-3" style="margin-top: 12px;">
+                @if (!Model.Any())
+                {
+                    <div class="card" style="grid-column: 1 / -1;">目前沒有已發布產品。</div>
+                }
+                else
+                {
+                    foreach (var p in Model)
+                    {
+                        <article class="card">
+                            <h3><a href="/products/@p.Slug" style="color: inherit; text-decoration: none;">@p.Title</a></h3>
+                            <p class="muted">@p.Summary</p>
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-outline" href="/products/@p.Slug">了解更多</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</main>
+

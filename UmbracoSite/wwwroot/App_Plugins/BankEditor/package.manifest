@@ -1,0 +1,22 @@
+{
+  "sections": [
+    {
+      "alias": "bankEditor",
+      "name": "上稿工具",
+      "weight": 40,
+      "icon": "icon-edit"
+    }
+  ],
+  "dashboards": [
+    {
+      "alias": "bankEditorDashboard",
+      "view": "/App_Plugins/BankEditor/bank-editor.html",
+      "sections": [ "bankEditor" ],
+      "weight": 10
+    }
+  ],
+  "javascript": [
+    "/App_Plugins/BankEditor/bank-editor.controller.js"
+  ]
+}
+
